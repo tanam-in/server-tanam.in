@@ -1,7 +1,7 @@
 const Hapi = require('@hapi/hapi');
-const {connection} = require('./connection');
-// const routes = require('./route');
- 
+const con =require('./connection');
+const routes = require('./route')
+
 const init = async () => {
 
     const server = Hapi.server({
@@ -14,19 +14,16 @@ const init = async () => {
           },
     });
 
-    //semua route, maaf panjang
-    // server.route(routes);
-    await connection.connect(function(err){
-        if(err){
-            console.log('something wrong with mysql database connection');
-            connection.end();
-        }
-    });
+    con.authenticate().then(()=>{
+        console.log('connected db');
+    }).catch(()=>{
+        console.log('error connected db');
+    })
     
-    const rotes = require('./route')(server,connection)
+    // const rotes = require('./route')(server,connection)
+    server.route(routes);
     await server.start();
 
-   
 
     console.log(`Server berjalan pada ${server.info.uri}`);
 };
