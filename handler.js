@@ -75,7 +75,7 @@ module.exports.home = async function(request,h){
         const{userid} = request.payload;
         let progress = 0;
         //mencari kelas yang sudah diikuti user
-        const [user_class] = await con.query('Select classes_id, lastest_module, status,recent_modul from progress where users_id='+userid+'');
+        const [user_class] = await con.query('Select classes_id, lastest_module, status,recent_modul from progress where users_id='+userid+' ORDER BY update_at DESC LIMIT 1');
         if(user_class.length >0){
             const class_id = user_class[0].classes_id;
             //mengambil data kelas dari db
