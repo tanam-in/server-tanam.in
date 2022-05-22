@@ -62,7 +62,7 @@ module.exports.login = async function(request,h){
                     status: 'success',
                     message: 'gagal untuk login, silahkan periksa kembali email atau password anda',
                   });
-                response.code(500);
+                response.code(201);
                 return response
             }
     } catch (error) {
@@ -105,6 +105,36 @@ module.exports.home = async function(request,h){
     } catch (error) {
         console.log(error)
     }
-   
+}
 
+module.exports.classes = async function(request,h){
+    try {
+        const{userid} = request.payload;
+        
+    } catch (error) {
+        
+    }
+}
+
+module.exports.profil = async function(request,h){
+    try {
+        const{userid} = request.payload;
+        const user_profil = await con.query('SELECT users.*, SUM(CASE progress.status WHEN "0" THEN 1 ELSE 0 END) as progress,SUM(CASE progress.status WHEN "1" THEN 1 ELSE 0 END) as finish FROM users INNER JOIN progress on users.id_user = progress.users_id WHERE users.id_user = '+userid+'');
+
+        const response = h.response({
+            status: 'success',
+            data: user_profil
+          });
+          response.code(201);
+          return response
+
+    } catch (error) {
+        console.log(error);
+        const response = h.response({
+            status: 'success',
+            message: 'maaf terdapat masalah dengan koneksi',
+          });
+        response.code(500);
+        return response
+    }
 }
