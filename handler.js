@@ -103,7 +103,13 @@ module.exports.home = async function(request,h){
             return response
         }
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        const response = h.response({
+            status: 'success',
+            message: 'maaf terdapat masalah dengan koneksi',
+          });
+        response.code(500);
+        return response
     }
 }
 
