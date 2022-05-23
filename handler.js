@@ -27,7 +27,7 @@ module.exports.register = async function(request,h){
         }
         else{
             const response = h.response({
-                status: 'success',
+                status: 'error',
                 message: 'tidak dapat membuat akun',
               });
             response.code(500);
@@ -36,6 +36,12 @@ module.exports.register = async function(request,h){
         
     } catch (error) {
         console.log(error);
+        const response = h.response({
+            status: 'success',
+            message: 'maaf terdapat masalah dengan koneksi',
+          });
+        response.code(500);
+        return response
     }
 }
 
@@ -43,9 +49,9 @@ module.exports.login = async function(request,h){
     try {
         const { email, password } = request.payload;
         const [result,error] = await con.query('SELECT id_user,name From users WHERE email = "'+email+'" and password = "'+password+'" ');
-        let id_user = (result[0].id_user);
-        let name = (result[0].name);
-            if(result.length >0){
+        if(result.length >0){
+                let id_user = (result[0].id_user);
+                let name = (result[0].name);
                 const response = h.response({
                     status: 'success',
                     message: 'berhasil melakukan login',
@@ -59,14 +65,20 @@ module.exports.login = async function(request,h){
             }
             else{
                 const response = h.response({
-                    status: 'success',
+                    status: 'error',
                     message: 'gagal untuk login, silahkan periksa kembali email atau password anda',
                   });
-                response.code(201);
+                response.code(500);
                 return response
             }
     } catch (error) {
         console.log(error);
+        const response = h.response({
+            status: 'success',
+            message: 'maaf terdapat masalah dengan koneksi',
+          });
+        response.code(500);
+        return response
     }
 }
 
@@ -116,6 +128,7 @@ module.exports.home = async function(request,h){
 module.exports.classes = async function(request,h){
     try {
         const{userid} = request.payload;
+
         
     } catch (error) {
         
@@ -134,6 +147,32 @@ module.exports.profil = async function(request,h){
           response.code(201);
           return response
 
+    } catch (error) {
+        console.log(error);
+        const response = h.response({
+            status: 'success',
+            message: 'maaf terdapat masalah dengan koneksi',
+          });
+        response.code(500);
+        return response
+    }
+}
+
+module.exports.moduleContent = async function(request,h){
+    try {
+        const{class_id,module_id} = request.payload;
+        const next_module = parseInt(module_id)+1;
+        const [result] = await con.query('SELECT * FROM `moduls` WHERE classes_id='+class_id+' and id_moduls='+module_id+'');
+        const response = h.response({
+            status: 'success',
+            data: {
+                module: result,
+                nextModule: next_module,
+                class_id: class_id
+            }
+          });
+          response.code(201);
+          return response
     } catch (error) {
         console.log(error);
         const response = h.response({

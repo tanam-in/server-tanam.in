@@ -1,4 +1,4 @@
-const {register,login,home,classes,profil} = require("./handler");
+const {register,login,home,classes,profil,moduleContent} = require("./handler");
 
 const routes = [
     {
@@ -25,6 +25,11 @@ const routes = [
         method: 'POST',
         path: '/profile',
         handler: profil
+    },
+    {
+        method: 'POST',
+        path: '/module',
+        handler: moduleContent
     }
   ];
 
