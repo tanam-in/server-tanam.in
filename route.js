@@ -1,4 +1,4 @@
-const {register,login,home,classes,profil,moduleContent} = require("./handler");
+const {register,login,home,classes,profil,moduleContent,detail_kelas,forum,informasi_gizi} = require("./handler");
 
 const routes = [
     {
@@ -30,6 +30,21 @@ const routes = [
         method: 'POST',
         path: '/module',
         handler: moduleContent
+    },
+        {
+        method: 'GET',
+        path: '/kelas/{id}',
+        handler: detail_kelas
+    },
+    {
+        method: 'GET',
+        path: '/kelas/{id}/forum',
+        handler: forum
+    },  
+    {
+        method: 'GET',
+        path: '/deteksi/{id}/informations',
+        handler: informasi_gizi
     }
   ];
 
