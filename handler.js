@@ -183,3 +183,118 @@ module.exports.moduleContent = async function(request,h){
         return response
     }
 }
+
+//tambahan
+module.exports.detail_kelas = async function (request, h) {
+    try {
+        const {id} = request.params;
+        const [hasil] = await con.query('Select id_class, title, detail, picture, total_module from classes where id_class = '+id+'');
+        let title = (hasil[0].title);
+        let detail = (hasil[0].detail);
+        let picture = (hasil[0].picture);
+        if( hasil.length > 0) {
+            const [modul] = await con.query('SELECT title FROM moduls WHERE EXISTS(SELECT id_class FROM classes WHERE classes.id_class = moduls.classes_id AND moduls.classes_id = '+id+');');
+            const response= h.response({
+                status: 'success',
+                data: {
+                    judul: title,
+                    detail_kelas: detail,
+                    picture: picture,
+                    listmodul: modul,
+                    jumlahmodul: modul.length
+                }
+            });
+            response.code (201);
+            return response
+            } 
+            else{
+                const response = h.response({
+                    status: '',
+                    message: 'maaf kelas tidak ditemukan',
+                  });
+                response.code(201);
+                return response
+        } 
+    }   catch (error) {
+            console.log (error);
+            const response = h.response({
+                status: 'success',
+                message: 'maaf terdapat masalah dengan koneksi',
+              });
+            response.code(500);
+            return response
+        }   
+} 
+
+module.exports.forum = async function (request, h) {
+    try {
+        const {id} = request.params;
+        const [forum] = await con.query('SELECT title, question, time FROM forum WHERE EXISTS(SELECT id_class FROM classes WHERE classes.id_class = forum.classes_id AND forum.classes_id = '+id+') AND EXISTS(SELECT id_user FROM users WHERE users.id_user = forum.users_id)');
+        if (forum.length > 0) {
+            const response = h.response ({
+                status: 'success',
+                data: {
+                    listforum: forum,
+                }
+            });
+            response.code(201);
+                return response
+        }
+        else {
+            const response = h.response({
+                status: 'success',
+                message: 'belum ada diskusi'
+            });
+            response.code(201);
+            return response
+        }
+    }
+    catch(error) {
+        console.log (error);
+        const response = h.response({
+            status: 'success',
+            message: 'maaf terdapat masalah dengan koneksi',
+          });
+        response.code(500);
+        return response
+    }
+}
+
+module.exports.informasi_gizi = async function (request, h) {
+    try {
+        const {id} = request.params;
+        const [hasil] = await con.query('SELECT name, content, benefit FROM informations WHERE EXISTS(SELECT id_class FROM classes WHERE classes.id_class = informations.classes_id AND informations.classes_id = '+id+')');
+        if( hasil.length > 0) {
+            let name = hasil[0].name;
+            let content = hasil[0].content;
+            let benefit = hasil[0].benefit;
+            const response= h.response({
+                status: 'success',
+                data: {
+                    judul: name,
+                    kandungan: content,
+                    manfaat: benefit
+                }
+            });
+            response.code (201);
+            return response
+            } 
+            else{
+                const response = h.response({
+                    status: 'fail',
+                    message: 'maaf informasi tidak ditemukan',
+                  });
+                response.code(404);
+                return response
+        } 
+    } 
+    catch (error) {
+        console.log(error);
+        const response = h.response({
+            status: 'success',
+            message: 'maaf terdapat masalah dengan koneksi',
+          });
+        response.code(500);
+        return response
+    }
+}
