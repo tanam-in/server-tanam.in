@@ -228,21 +228,15 @@ module.exports.moduleContent = async function(request,h){
 //tambahan
 module.exports.detail_kelas = async function (request, h) {
     try {
-        const {id} = request.params;
-        const [hasil] = await con.query('Select id_class, title, detail, picture, total_module from classes where id_class = '+id+'');
-        let title = (hasil[0].title);
-        let detail = (hasil[0].detail);
-        let picture = (hasil[0].picture);
+        const {classid} = request.params;
+        const [hasil] = await con.query('Select id_class, title, detail, picture, total_module from classes where id_class = '+classid+'');
         if( hasil.length > 0) {
-            const [modul] = await con.query('SELECT title FROM moduls WHERE EXISTS(SELECT id_class FROM classes WHERE classes.id_class = moduls.classes_id AND moduls.classes_id = '+id+');');
+            const [modul] = await con.query('SELECT title, id_moduls FROM moduls WHERE EXISTS(SELECT id_class FROM classes WHERE classes.id_class = moduls.classes_id AND moduls.classes_id = '+classid+');');
             const response= h.response({
                 status: 'success',
                 data: {
-                    judul: title,
-                    detail_kelas: detail,
-                    picture: picture,
-                    listmodul: modul,
-                    jumlahmodul: modul.length
+                    detail_kelas: hasil,
+                    listmodul: modul
                 }
             });
             response.code (201);
@@ -269,8 +263,8 @@ module.exports.detail_kelas = async function (request, h) {
 
 module.exports.forum = async function (request, h) {
     try {
-        const {id} = request.params;
-        const [forum] = await con.query('SELECT title, question, time FROM forum WHERE EXISTS(SELECT id_class FROM classes WHERE classes.id_class = forum.classes_id AND forum.classes_id = '+id+') AND EXISTS(SELECT id_user FROM users WHERE users.id_user = forum.users_id)');
+        const {classid} = request.params;
+        const [forum] = await con.query('SELECT title, question, time FROM forum WHERE EXISTS(SELECT id_class FROM classes WHERE classes.id_class = forum.classes_id AND forum.classes_id = '+classid+') AND EXISTS(SELECT id_user FROM users WHERE users.id_user = forum.users_id)');
         if (forum.length > 0) {
             const response = h.response ({
                 status: 'success',
