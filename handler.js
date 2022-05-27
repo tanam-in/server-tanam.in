@@ -150,16 +150,10 @@ module.exports.classes = async function(request,h){
         From classes left join class_first_modul on classes.id_class = class_first_modul.id_class
         where classes.id_class not in (`+temp+`)`);
 
-        // console.log(otherClass);
-
-        let classFinal = {userClass, otherClass};
-
-        // console.log(classFinal);
-
             const response = h.response({
                 status: 'success',
                 data: {
-                    class: classFinal
+                    class: {userClass, otherClass}
                 }
               });
               response.code(201);
