@@ -17,8 +17,8 @@ const routes = [
         handler: home
     },
     {
-        method: 'GET',
-        path: '/class/{userid}',
+        method: 'POST',
+        path: '/class',
         handler: classes
     },
     {

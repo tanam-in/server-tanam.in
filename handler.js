@@ -128,25 +128,38 @@ module.exports.home = async function(request,h){
 
 module.exports.classes = async function(request,h){
     try {
-        const{userid} = request.params;
-        const [all_class] = await con.query(`SELECT 
-        classes.*,
-        (progress.lastest_module / classes.total_module * 100) AS progress,
-        case when progress.lastest_module is null then class_first_modul.modul_title else moduls.title end as modul_title,
-        case when progress.lastest_module is null then class_first_modul.id_moduls else moduls.id_moduls end as modul_id
-    FROM
-        (classes LEFT join class_first_modul on classes.id_class = class_first_modul.id_class)
-            LEFT JOIN
-        (progress
-        INNER JOIN moduls ON progress.lastest_module = moduls.id_moduls and progress.classes_id = moduls.classes_id) ON classes.id_class = progress.classes_id
-    WHERE
-        (progress.users_id = `+userid+`
-            OR progress.users_id IS NULL)`)
+        const{userid} = request.payload;
+        const [userClass] = await con.query(`SELECT 
+                                                classes.*,
+                                                (progress.lastest_module / classes.total_module * 100) AS progress,
+                                                moduls.title
+                                            FROM
+                                                (classes)
+                                                    LEFT JOIN
+                                                (progress
+                                                RIGHT JOIN moduls ON progress.lastest_module = moduls.id_moduls and progress.classes_id = moduls.classes_id) ON classes.id_class = progress.classes_id
+                                            WHERE
+                                                (progress.users_id = `+userid+`)`);
+        let temp = [];
+        userClass.forEach(element => {
+            temp.push(element.id_class);
+        });
+
+        // console.log(userClass);
+        const [otherClass] = await con.query(`Select classes.*, class_first_modul.modul_title
+        From classes left join class_first_modul on classes.id_class = class_first_modul.id_class
+        where classes.id_class not in (`+temp+`)`);
+
+        // console.log(otherClass);
+
+        let classFinal = {userClass, otherClass};
+
+        // console.log(classFinal);
 
             const response = h.response({
                 status: 'success',
                 data: {
-                    class: all_class
+                    class: classFinal
                 }
               });
               response.code(201);
@@ -155,7 +168,7 @@ module.exports.classes = async function(request,h){
     } catch (error) {
         console.log(error);
         const response = h.response({
-            status: 'success',
+            status: 'Error',
             message: 'maaf terdapat masalah dengan koneksi',
           });
         response.code(500);
