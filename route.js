@@ -33,12 +33,12 @@ const routes = [
     },
         {
         method: 'GET',
-        path: '/kelas/{id}',
+        path: '/module/{classid}',
         handler: detail_kelas
     },
     {
         method: 'GET',
-        path: '/kelas/{id}/forum',
+        path: '/module/{classid}/forum',
         handler: forum
     },  
     {
