@@ -345,7 +345,7 @@ module.exports.profilEdit = async function (request,h){
     try {
        const {userid,age,address,profile_picture} = request.payload;
        const [update,metadata] = await con.query('UPDATE users SET age="'+age+'",address="'+address+'",profile_picture="'+profile_picture+'" WHERE id_user = '+userid+'');
-       if(metadata === 1){
+       if(metadata !== 1){
         const response = h.response({
             status: 'success',
             message: 'berhasil mengupdate profile'
