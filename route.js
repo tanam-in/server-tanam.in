@@ -1,4 +1,4 @@
-const {register,login,home,classes,profil,moduleContent,detail_kelas,forum,informasi_gizi,profilEdit} = require("./handler");
+const {register,login,home,classes,profil,moduleContent,detail_kelas,forum,informasi_gizi,profilEdit,quizCheck} = require("./handler");
 
 const routes = [
     {
@@ -27,8 +27,8 @@ const routes = [
         handler: profil
     },
     {
-        method: 'GET',
-        path: '/module/{classid}/{modulid}',
+        method: 'POST',
+        path: '/module',
         handler: moduleContent
     },
         {
@@ -59,6 +59,11 @@ const routes = [
                 maxBytes: 1000 * 1000 * 5
             }
         }
+    },
+    {
+        method: 'POST',
+        path: '/quizCheck',
+        handler: quizCheck
     }
   ];
 

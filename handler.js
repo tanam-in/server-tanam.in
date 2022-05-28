@@ -208,19 +208,63 @@ module.exports.profil = async function(request,h){
 
 module.exports.moduleContent = async function(request,h){
     try {
-        const{classid,modulid} = request.params;
-        const next_module = parseInt(modulid)+1;
-        const [result] = await con.query('SELECT * FROM `moduls` WHERE classes_id='+classid+' and id_moduls='+modulid+'');
-        const response = h.response({
-            status: 'success',
-            data: {
-                module: result,
-                nextModule: next_module,
-                class_id: classid
+        const{classid,modulid,userid} = request.payload;
+        // const next_module = parseInt(modulid)+1;
+        let next_module = 0;
+        const [result] = await con.query('SELECT moduls.*, classes.total_module FROM moduls INNER JOIN classes on moduls.classes_id = classes.id_class  WHERE classes_id='+classid+' and id_moduls='+modulid+'');
+        if(result.length > 0){
+
+            const [progress] = await con.query('select lastest_module from progress where users_id='+userid+' and classes_id='+classid+'');
+            const updateAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            if(progress[0].lastest_module >= modulid){
+                const [update] = await con.query('UPDATE `progress` SET recent_modul='+modulid+', update_at="'+updateAt+'" where users_id='+userid+' and classes_id='+classid+'')
             }
-          });
-          response.code(201);
-          return response
+            else{
+                const [update] = await con.query('UPDATE `progress` SET recent_modul='+modulid+',lastest_module='+modulid+' ,update_at="'+updateAt+'" where users_id='+userid+' and classes_id='+classid+'')
+            }
+            if((parseInt(modulid)+1)< result[0].total_module){
+                next_module = parseInt(modulid)+1;
+            }
+            if(result[0].quiz_id === null){
+                const response = h.response({
+                    status: 'success',
+                    data: {
+                        module: result,
+                        nextModule: next_module,
+                        class_id: classid
+                    }
+                  });
+                  response.code(201);
+                  return response
+            }
+            else{
+                const title = result[0]
+                const [quiz] = await con.query('select soal from quiz where id_quiz = '+result[0].quiz_id+'');
+                let question = JSON.parse(quiz[0].soal);
+                const response = h.response({
+                    status: 'success',
+                    data: {
+                        module: question,
+                        title: result[0].title,
+                        content: result[0].content,
+                        nextModule: next_module,
+                        class_id: classid
+                    }
+                  });
+                  response.code(201);
+                  return response
+            }
+
+            
+        }
+        else{
+            const response = h.response({
+                status: 'error',
+                message: 'maaf module yang kamu cari tidak ditemukan',
+              });
+            response.code(500);
+            return response
+        }
     } catch (error) {
         console.log(error);
         const response = h.response({
@@ -362,6 +406,37 @@ module.exports.profilEdit = async function (request,h){
           return response
        }
     } catch (error) {
+        console.log (error);
+        const response = h.response({
+            status: 'error',
+            message: 'maaf terdapat masalah dengan koneksi',
+          });
+        response.code(500);
+        return response
+    }
+}
+
+module.exports.quizCheck = async function(request,h){
+    try {
+       const {answer,quizid,userid} = request.payload;
+       const [ans] = await con.query('select kunci from quiz where id_quiz = '+quizid+'');
+       const key_split = ans[0].kunci.split(';');
+       let score = 0;
+       key_split.forEach(function(value,key){
+           if(answer[key] == value) score+=1;
+       });
+       score *= 10;
+       const [inset,metadata] = await con.query('INSERT INTO `quiz_result`(`users_id`, `score`, `quiz_id`) VALUES ('+userid+','+score+','+quizid+')');
+       if(metadata === 1){
+           const response = h.response({
+               status: 'success',
+               message: 'berhasil memeriksa jawaban'
+           });
+           response.code(201);
+           return response
+       }
+
+        } catch (error) {
         console.log (error);
         const response = h.response({
             status: 'error',
