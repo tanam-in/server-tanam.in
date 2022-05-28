@@ -49,7 +49,16 @@ const routes = [
     {
         method: 'POST',
         path: '/editProfile',
-        handler: profilEdit
+        handler: profilEdit,
+        options: {
+            payload: {
+                parse: true,
+                multipart: {
+                    output: 'stream'
+                },
+                maxBytes: 1000 * 1000 * 5
+            }
+        }
     }
   ];
 
