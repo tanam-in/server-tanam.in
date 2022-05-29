@@ -1,4 +1,4 @@
-const {register,login,home,classes,profil,moduleContent,detail_kelas,forum,informasi_gizi,profilEdit,quizCheck} = require("./handler");
+const {register,login,home,classes,profil,moduleContent,detail_kelas,forum,informasi_gizi,profilEdit,quizCheck,createForum,getForumMassage,sendMassage} = require("./handler");
 
 const routes = [
     {
@@ -64,7 +64,22 @@ const routes = [
         method: 'POST',
         path: '/quizCheck',
         handler: quizCheck
-    }
+    },
+    {
+        method: 'POST',
+        path: '/createForum',
+        handler: createForum
+    },
+    {
+        method: 'GET',
+        path: '/ForumMassage/{forumid}',
+        handler: getForumMassage
+    },
+    {
+        method: 'POST',
+        path: '/sendMassage',
+        handler: sendMassage
+    },
   ];
 
 module.exports = routes;

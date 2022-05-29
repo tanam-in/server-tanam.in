@@ -1,4 +1,5 @@
 const con = require('./connection');
+const moment = require('moment');
 
 module.exports.register = async function(request,h){
     try {
@@ -445,4 +446,107 @@ module.exports.quizCheck = async function(request,h){
         response.code(500);
         return response
     }
+}
+
+module.exports.createForum = async function(request,h){
+    try {
+        const {classid, userid, title, question} = request.payload;
+        const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        const [inset,metadata] = await con.query('INSERT INTO `forum`(`classes_id`, `users_id`, `title`, `question`, `time`) VALUES ('+classid+','+userid+',"'+title+'","'+question+'","'+date+'")');
+        if(metadata === 1){
+            const response = h.response({
+                status: 'success',
+                message: 'berhasil membuat forum baru'
+            });
+            response.code(201);
+            return response
+        }
+        else{
+            const response = h.response({
+                status: 'error',
+                message: 'maaf terdapat masalah saat membuat forum',
+              });
+            response.code(500);
+            return response
+        }
+    } catch (error) {
+        console.log (error);
+        const response = h.response({
+            status: 'error',
+            message: 'maaf terdapat masalah dengan koneksi',
+          });
+        response.code(500);
+        return response
+    }
+}
+
+module.exports.getForumMassage = async function(request,h){
+    try {
+        const {forumid} = request.params;
+        const [massage] = await con.query('SELECT reply_forum.*, users.name FROM reply_forum INNER JOIN users on reply_forum.users_id = users.id_user WHERE reply_forum.id_forum = '+forumid+'');
+        if(massage.length > 0){
+            massage.forEach(element => {
+                let date = moment(element.timestamp).format('MMMM Do YYYY, h:mm:ss a');
+                element.timestamp = date;
+            });
+            
+            const response = h.response({
+                status: 'success',
+                data: massage
+            });
+            response.code(201);
+            return response
+
+        }
+        else{
+            const response = h.response({
+                status: 'error',
+                message: 'maaf forum yang anda cari tidak ditemukan',
+              });
+            response.code(500);
+            return response
+        }
+
+    } catch (error) {
+        console.log (error);
+        const response = h.response({
+            status: 'error',
+            message: 'maaf terdapat masalah dengan koneksi',
+          });
+        response.code(500);
+        return response
+    }
+}
+
+module.exports.sendMassage = async function(request,h){
+    try {
+        const {idforum, userid, massage} = request.payload;
+        const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        const [insert, metadata] = await con.query('INSERT INTO reply_forum(id_forum,users_id,messege,timestamp) VALUES ('+idforum+','+userid+',"'+massage+'","'+date+'")');
+        if(metadata === 1){
+            const response = h.response({
+                status: 'success',
+                message: 'berhasil mengirim pesan'
+            });
+            response.code(201);
+            return response
+        }
+        else{
+            const response = h.response({
+                status: 'error',
+                message: 'maaf terdapat masalah saat mengirim pesan',
+              });
+            response.code(500);
+            return response
+        }
+    } catch (error) {
+        console.log (error);
+        const response = h.response({
+            status: 'error',
+            message: 'maaf terdapat masalah dengan koneksi',
+          });
+        response.code(500);
+        return response
+    }
+
 }
