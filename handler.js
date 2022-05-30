@@ -88,21 +88,21 @@ module.exports.home = async function(request,h){
         const{userid} = request.payload;
         let progress = 0;
         //mencari kelas yang sudah diikuti user
-        const [user_class] = await con.query('Select progress.classes_id, progress.lastest_module, progress.status,progress.recent_modul, moduls.title from progress inner join moduls on progress.recent_modul = moduls.id_moduls AND progress.classes_id = moduls.classes_id where users_id='+userid+' ORDER BY update_at DESC LIMIT 1');
+        const [user_class] = await con.query(`SELECT classes.*,(progress.lastest_module / classes.total_module * 100) AS progress, moduls.title AS modul_title, progress.lastest_module FROM classes LEFT JOIN progress ON classes.id_class = progress.classes_id RIGHT JOIN moduls ON progress.lastest_module = moduls.id_moduls AND progress.classes_id = moduls.classes_id WHERE progress.users_id = `+userid+` order by progress.update_at desc limit 1`);
         if(user_class.length >0){
-            const class_id = user_class[0].classes_id;
-            //mengambil data kelas dari db
-            const [kelas] = await con.query('Select * from classes where id_class='+class_id+'');
-            //menghitung progress user
-            progress = user_class[0].lastest_module / kelas[0].total_module * 100;
+            // const class_id = user_class[0].classes_id;
+            // //mengambil data kelas dari db
+            // const [kelas] = await con.query('Select * from classes where id_class='+class_id+'');
+            // //menghitung progress user
+            // progress = user_class[0].lastest_module / kelas[0].total_module * 100;
             // console.log(progress);
             const response = h.response({
                 status: 'success',
                 data: {
-                    kelas: kelas,
-                    progress: progress,
-                    recent_modul: user_class[0].recent_modul,
-                    modul_title: user_class[0].title
+                    kelas: user_class,
+                    // progress: progress,
+                    // recent_modul: user_class[0].recent_modul,
+                    // modul_title: user_class[0].title
                 }
               });
             response.code(200);
@@ -119,7 +119,7 @@ module.exports.home = async function(request,h){
     } catch (error) {
         console.log(error);
         const response = h.response({
-            status: 'success',
+            status: 'error',
             message: 'maaf terdapat masalah dengan koneksi',
           });
         response.code(500);
@@ -130,13 +130,13 @@ module.exports.home = async function(request,h){
 module.exports.classes = async function(request,h){
     try {
         const{userid} = request.payload;
-        const [userClass] = await con.query(`SELECT classes.*,(progress.lastest_module / classes.total_module * 100) AS progress, moduls.title as modul_title
+        const [userClass] = await con.query(`SELECT classes.*,(progress.lastest_module / classes.total_module * 100) AS progress, moduls.title AS modul_title, progress.lastest_module
                                             FROM classes
                                             LEFT JOIN progress ON classes.id_class = progress.classes_id
                                             RIGHT JOIN moduls ON progress.lastest_module = moduls.id_moduls AND progress.classes_id = moduls.classes_id
                                             WHERE progress.users_id = `+userid+`
                                             UNION
-                                            SELECT classes.*, "null" AS progress, moduls.title as modul_title 
+                                            SELECT classes.*, "0.0progress" AS progress, moduls.title AS modul_title, "1" AS lastest_module
                                             FROM classes
                                             LEFT JOIN moduls ON classes.id_class = moduls.classes_id 
                                             WHERE classes.id_class NOT IN (SELECT classes.id_class
@@ -382,6 +382,7 @@ module.exports.informasi_gizi = async function (request, h) {
 module.exports.profilEdit = async function (request,h){
     try {
        const {userid,age,address,profile_picture} = request.payload;
+       console.log(profile_picture);
        const [update,metadata] = await con.query('UPDATE users SET age="'+age+'",address="'+address+'",profile_picture="'+profile_picture+'" WHERE id_user = '+userid+'');
        if(metadata !== 1){
         const response = h.response({
