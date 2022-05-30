@@ -1,6 +1,6 @@
 const con = require('./connection');
 const moment = require('moment');
-
+let fs = require('fs');
 module.exports.register = async function(request,h){
     try {
         const { email, name, password } = request.payload;
@@ -381,9 +381,20 @@ module.exports.informasi_gizi = async function (request, h) {
 
 module.exports.profilEdit = async function (request,h){
     try {
-       const {userid,age,address,profile_picture} = request.payload;
-       console.log(profile_picture);
-       const [update,metadata] = await con.query('UPDATE users SET age="'+age+'",address="'+address+'",profile_picture="'+profile_picture+'" WHERE id_user = '+userid+'');
+       const {userid,name,age,address,profile_picture} = request.payload;
+       let [update,metadata] = []
+       if(request.payload.hasOwnProperty('profile_picture')){
+           
+           let ext = profile_picture.hapi.filename.split('.').pop();
+           let picName =  userid+'_'+name+'.'+ext;
+           let path = __dirname+"/picture/"+picName
+           let file = fs.createWriteStream(path);
+           profile_picture.pipe(file);
+           [update,metadata] = await con.query('UPDATE users SET age="'+age+'",address="'+address+'" ,name="'+name+'",profile_picture="'+path+'" WHERE id_user = '+userid+'');
+       }    
+       else{
+        [update,metadata] = await con.query('UPDATE users SET age="'+age+'",address="'+address+'" ,name="'+name+'" WHERE id_user = '+userid+'');
+       }
        if(metadata !== 1){
         const response = h.response({
             status: 'success',
