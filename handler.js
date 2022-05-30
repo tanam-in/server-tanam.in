@@ -130,13 +130,13 @@ module.exports.home = async function(request,h){
 module.exports.classes = async function(request,h){
     try {
         const{userid} = request.payload;
-        const [userClass] = await con.query(`SELECT classes.*,(progress.lastest_module / classes.total_module * 100) AS progress, moduls.title
+        const [userClass] = await con.query(`SELECT classes.*,(progress.lastest_module / classes.total_module * 100) AS progress, moduls.title as modul_title
                                             FROM classes
                                             LEFT JOIN progress ON classes.id_class = progress.classes_id
                                             RIGHT JOIN moduls ON progress.lastest_module = moduls.id_moduls AND progress.classes_id = moduls.classes_id
                                             WHERE progress.users_id = `+userid+`
                                             UNION
-                                            SELECT classes.*, "null" AS progress, moduls.title 
+                                            SELECT classes.*, "null" AS progress, moduls.title as modul_title 
                                             FROM classes
                                             LEFT JOIN moduls ON classes.id_class = moduls.classes_id 
                                             WHERE classes.id_class NOT IN (SELECT classes.id_class
