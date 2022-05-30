@@ -309,7 +309,7 @@ module.exports.detail_kelas = async function (request, h) {
 module.exports.forum = async function (request, h) {
     try {
         const {classid} = request.params;
-        const [forum] = await con.query('SELECT title, question, time FROM forum WHERE EXISTS(SELECT id_class FROM classes WHERE classes.id_class = forum.classes_id AND forum.classes_id = '+classid+') AND EXISTS(SELECT id_user FROM users WHERE users.id_user = forum.users_id)');
+        const [forum] = await con.query('SELECT id_forum, title, question, time FROM forum WHERE EXISTS(SELECT id_class FROM classes WHERE classes.id_class = forum.classes_id AND forum.classes_id = '+classid+') AND EXISTS(SELECT id_user FROM users WHERE users.id_user = forum.users_id)');
         if (forum.length > 0) {
             const response = h.response ({
                 status: 'success',
