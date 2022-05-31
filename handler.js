@@ -136,7 +136,7 @@ module.exports.classes = async function(request,h){
                                             RIGHT JOIN moduls ON progress.lastest_module = moduls.id_moduls AND progress.classes_id = moduls.classes_id
                                             WHERE progress.users_id = `+userid+`
                                             UNION
-                                            SELECT classes.*, "0.0progress" AS progress, moduls.title AS modul_title, "1" AS lastest_module
+                                            SELECT classes.*, "0.0" AS progress, moduls.title AS modul_title, "1" AS lastest_module
                                             FROM classes
                                             LEFT JOIN moduls ON classes.id_class = moduls.classes_id 
                                             WHERE classes.id_class NOT IN (SELECT classes.id_class
