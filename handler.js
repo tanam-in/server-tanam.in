@@ -1,6 +1,8 @@
 const con = require('./connection');
 const moment = require('moment');
 let fs = require('fs');
+const {Storage} = require("@google-cloud/storage");
+
 module.exports.register = async function(request,h){
     try {
         const { email, name, password } = request.payload;
@@ -384,12 +386,20 @@ module.exports.profilEdit = async function (request,h){
        let [update,metadata] = []
        if(request.payload.hasOwnProperty('profile_picture')){
            
-           let ext = profile_picture.hapi.filename.split('.').pop();
-           let picName =  userid+'_'+name+'.'+ext;
-           let path = __dirname+"/picture/"+picName
-           let file = fs.createWriteStream(path);
-           profile_picture.pipe(file);
-           [update,metadata] = await con.query('UPDATE users SET age="'+age+'",address="'+address+'" ,name="'+name+'",profile_picture="'+path+'" WHERE id_user = '+userid+'');
+           const gc = new Storage({
+               keyFilename: __dirname+'/tanamin-351905-d9af27bebb96.json',
+               projectId: "tanamin-351905"
+           });
+
+           const tanaminBucket = gc.bucket('tanamin');
+
+            let ext = profile_picture.hapi.filename.split('.').pop();
+            let picName =  userid+'_'+name+'.'+ext;
+
+            const blob = await profile_picture.pipe(tanaminBucket.file('profile/'+picName).createWriteStream({
+                resumable: false
+            }));
+           [update,metadata] = await con.query('UPDATE users SET age="'+age+'",address="'+address+'" ,name="'+name+'",profile_picture="'+picName+'" WHERE id_user = '+userid+'');
        }    
        else{
         [update,metadata] = await con.query('UPDATE users SET age="'+age+'",address="'+address+'" ,name="'+name+'" WHERE id_user = '+userid+'');
