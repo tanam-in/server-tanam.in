@@ -488,7 +488,7 @@ module.exports.createForum = async function(request,h){
 module.exports.getForumMassage = async function(request,h){
     try {
         const {forumid} = request.params;
-        const [massage] = await con.query('SELECT reply_forum.*, users.name FROM reply_forum INNER JOIN users on reply_forum.users_id = users.id_user WHERE reply_forum.id_forum = '+forumid+'');
+        const [massage] = await con.query('SELECT reply_forum.*, users.name FROM reply_forum INNER JOIN users on reply_forum.users_id = users.id_user WHERE reply_forum.id_forum = '+forumid+' ORDER BY reply_forum.timestamp ASC');
         if(massage.length > 0){
             massage.forEach(element => {
                 let date = moment(element.timestamp).format('MMMM Do YYYY, h:mm:ss a');
