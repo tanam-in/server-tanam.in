@@ -567,3 +567,40 @@ module.exports.sendMassage = async function(request,h){
     }
 
 }
+
+module.exports.classProgress = async function(request,h){
+    try {
+        const {userid,classid,picture} = request.payload;
+
+        const gc = new Storage({
+            keyFilename: __dirname+'/tanamin-351905-d9af27bebb96.json',
+            projectId: "tanamin-351905"
+        });
+
+        const tanaminBucket = gc.bucket('tanamin');
+
+        let ext = picture.hapi.filename.split('.').pop();
+        let picName =  userid+'_'+classid+'.'+ext;
+
+        const blob = await picture.pipe(tanaminBucket.file('progress/'+picName).createWriteStream({
+            resumable: false
+        }));
+        const [update] = await con.query('UPDATE `progress` SET progres_pic = "'+picName+'" WHERE users_id = '+userid+' and classes_id='+classid+'');
+    
+        const response = h.response({
+            status: 'success',
+            message: 'berhasil mengirim foto progress'
+        });
+        response.code(201);
+        return response
+        
+    } catch (error) {
+        console.log (error);
+        const response = h.response({
+            status: 'error',
+            message: 'maaf terdapat masalah dengan koneksi',
+          });
+        response.code(500);
+        return response
+    }
+}

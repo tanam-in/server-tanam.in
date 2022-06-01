@@ -1,4 +1,4 @@
-const {register,login,home,classes,profil,moduleContent,detail_kelas,forum,informasi_gizi,profilEdit,quizCheck,createForum,getForumMassage,sendMassage} = require("./handler");
+const {register,login,home,classes,profil,moduleContent,detail_kelas,forum,informasi_gizi,profilEdit,quizCheck,createForum,getForumMassage,sendMassage,classProgress} = require("./handler");
 
 const routes = [
     {
@@ -79,6 +79,20 @@ const routes = [
         method: 'POST',
         path: '/sendMassage',
         handler: sendMassage
+    },
+    {
+        method: 'POST',
+        path: '/classProgress',
+        handler: classProgress,
+        options: {
+            payload: {
+                parse: true,
+                multipart: {
+                    output: 'stream'
+                },
+                maxBytes: 1000 * 1000 * 5
+            }
+        }
     },
   ];
 
