@@ -206,8 +206,8 @@ module.exports.moduleContent = async function(request,h){
         // const next_module = parseInt(modulid)+1;
         let next_module = 0;
         const [result] = await con.query('SELECT moduls.*, classes.total_module FROM moduls INNER JOIN classes on moduls.classes_id = classes.id_class  WHERE classes_id='+classid+' and id_moduls='+modulid+'');
+        const [maxId] = await con.query('SELECT id_moduls FROM moduls where classes_id = '+classid+' and quiz_id is not null');
         if(result.length > 0){
-
             const [progress] = await con.query('select lastest_module from progress where users_id='+userid+' and classes_id='+classid+'');
             const updateAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
             if(progress[0].lastest_module >= modulid){
@@ -216,16 +216,14 @@ module.exports.moduleContent = async function(request,h){
             else{
                 const [update] = await con.query('UPDATE `progress` SET recent_modul='+modulid+',lastest_module='+modulid+' ,update_at="'+updateAt+'" where users_id='+userid+' and classes_id='+classid+'')
             }
-            if((parseInt(modulid)+1)< result[0].total_module){
-                next_module = parseInt(modulid)+1;
-            }
             if(result[0].quiz_id === null){
                 const response = h.response({
                     status: 'success',
                     data: {
                         module: result,
                         nextModule: next_module,
-                        class_id: classid
+                        class_id: classid,
+                        maxid: maxId[0].id_moduls
                     }
                   });
                   response.code(201);
@@ -242,7 +240,8 @@ module.exports.moduleContent = async function(request,h){
                         title: result[0].title,
                         content: result[0].content,
                         nextModule: next_module,
-                        class_id: classid
+                        class_id: classid.Date,
+                        maxid: maxId[0].id_moduls
                     }
                   });
                   response.code(201);
@@ -431,7 +430,7 @@ module.exports.quizCheck = async function(request,h){
        key_split.forEach(function(value,key){
            if(answer[key] == value) score+=1;
        });
-       score *= 10;
+       score *= 20;
        const [inset,metadata] = await con.query('INSERT INTO `quiz_result`(`users_id`, `score`, `quiz_id`) VALUES ('+userid+','+score+','+quizid+')');
        if(metadata === 1){
            const response = h.response({
