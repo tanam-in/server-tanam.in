@@ -423,7 +423,7 @@ module.exports.profilEdit = async function (request,h){
 
 module.exports.quizCheck = async function(request,h){
     try {
-       const {answer,quizid,userid} = request.payload;
+       const {answer,quizid,userid,classid} = request.payload;
        const [ans] = await con.query('select kunci from quiz where id_quiz = '+quizid+'');
        const key_split = ans[0].kunci.split(';');
        let score = 0;
@@ -432,6 +432,9 @@ module.exports.quizCheck = async function(request,h){
        });
        score *= 20;
        const [inset,metadata] = await con.query('INSERT INTO `quiz_result`(`users_id`, `score`, `quiz_id`) VALUES ('+userid+','+score+','+quizid+')');
+       if( score >= 60){
+            const [update] = await con.query('UPDATE `progress` SET status= 1 WHERE users_id = '+userid+' and classes_id='+classid+'');
+       }
        if(metadata === 1){
            const response = h.response({
                status: 'success',
