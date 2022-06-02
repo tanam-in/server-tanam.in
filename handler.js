@@ -384,10 +384,11 @@ module.exports.profilEdit = async function (request,h){
     try {
        const {userid,name,age,address,profile_picture} = request.payload;
        let [update,metadata] = []
+       console.log(profile_picture);
        if(request.payload.hasOwnProperty('profile_picture')){
            
            const gc = new Storage({
-               keyFilename: __dirname+'/tanamin-351905-d9af27bebb96.json',
+               keyFilename: __dirname+'/tanamin-351905-755dd0ae131c.json',
                projectId: "tanamin-351905"
            });
 
@@ -573,9 +574,11 @@ module.exports.classProgress = async function(request,h){
         const {userid,classid,picture} = request.payload;
 
         const gc = new Storage({
-            keyFilename: __dirname+'/tanamin-351905-d9af27bebb96.json',
+            keyFilename: __dirname+'/tanamin-351905-755dd0ae131c.json',
             projectId: "tanamin-351905"
         });
+
+        console.log(gc);
 
         const tanaminBucket = gc.bucket('tanamin');
 
