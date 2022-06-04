@@ -212,12 +212,13 @@ module.exports.moduleContent = async function(request,h){
         if(result.length > 0){
             const [progress] = await con.query('select lastest_module from progress where users_id='+userid+' and classes_id='+classid+'');
             const updateAt = new Date().toISOString().slice(0, 19).replace('T', ' ');
-            if(progress[0].lastest_module >= modulid){
+            if(progress[0].lastest_module >= modulid || modulid == maxId[0].id_moduls){
                 const [update] = await con.query('UPDATE `progress` SET recent_modul='+modulid+', update_at="'+updateAt+'" where users_id='+userid+' and classes_id='+classid+'')
             }
-            else{
+            else if (progress[0].lastest_module < modulid && modulid != maxId[0].id_moduls){
                 const [update] = await con.query('UPDATE `progress` SET recent_modul='+modulid+',lastest_module='+modulid+' ,update_at="'+updateAt+'" where users_id='+userid+' and classes_id='+classid+'')
             }
+
             if(result[0].quiz_id === null){
                 const response = h.response({
                     status: 'success',
@@ -243,7 +244,8 @@ module.exports.moduleContent = async function(request,h){
                         content: result[0].content,
                         nextModule: next_module,
                         class_id: classid.Date,
-                        maxid: maxId[0].id_moduls
+                        maxid: maxId[0].id_moduls,
+                        quizid: result[0].quiz_id
                     }
                   });
                   response.code(201);
@@ -434,7 +436,7 @@ module.exports.profilEdit = async function (request,h){
 
 module.exports.quizCheck = async function(request,h){
     try {
-       const {answer,quizid,userid,classid} = request.payload;
+       const {answer,quizid,userid,classid,moduleid} = request.payload;
        const [ans] = await con.query('select kunci from quiz where id_quiz = '+quizid+'');
        const key_split = ans[0].kunci.split(';');
        let score = 0;
@@ -444,12 +446,14 @@ module.exports.quizCheck = async function(request,h){
        score *= 20;
        const [inset,metadata] = await con.query('INSERT INTO `quiz_result`(`users_id`, `score`, `quiz_id`) VALUES ('+userid+','+score+','+quizid+')');
        if( score >= 60){
-            const [update] = await con.query('UPDATE `progress` SET status= 1 WHERE users_id = '+userid+' and classes_id='+classid+'');
+            const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            const [update] = await con.query('UPDATE `progress` SET status= 1,lastest_module = '+moduleid+',update_at="'+date+'" WHERE users_id = '+userid+' and classes_id='+classid+'');
        }
        if(metadata === 1){
            const response = h.response({
                status: 'success',
-               message: 'berhasil memeriksa jawaban'
+               message: 'berhasil memeriksa jawaban',
+               data: {score: score}
            });
            response.code(201);
            return response
@@ -597,6 +601,38 @@ module.exports.classProgress = async function(request,h){
         response.code(201);
         return response
         
+    } catch (error) {
+        console.log (error);
+        const response = h.response({
+            status: 'error',
+            message: 'maaf terdapat masalah dengan koneksi',
+          });
+        response.code(500);
+        return response
+    }
+}
+
+module.exports.joinClass = async function(request,h){
+    try {
+        const {userid,classid} = request.payload;
+        const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        const [insert,metadata] = await con.query('INSERT INTO `progress`(`users_id`, `classes_id`, `lastest_module`, `recent_modul`, `status`, `update_at`) VALUES ('+userid+','+classid+',1,1,0,"'+date+'")');
+        if(metadata === 1){
+            const response = h.response({
+                status: 'success',
+                message: 'selamat kamu berhasil menikuti kelas'
+            });
+            response.code(201);
+            return response
+        }
+        else{
+            const response = h.response({
+                status: 'error',
+                message: 'maaf terdapat masalah saat menambah kelas',
+              });
+            response.code(500);
+            return response
+        }
     } catch (error) {
         console.log (error);
         const response = h.response({

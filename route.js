@@ -1,4 +1,4 @@
-const {register,login,home,classes,profil,moduleContent,detail_kelas,forum,informasi_gizi,profilEdit,quizCheck,createForum,getForumMassage,sendMassage,classProgress} = require("./handler");
+const {register,login,home,classes,profil,moduleContent,detail_kelas,forum,informasi_gizi,profilEdit,quizCheck,createForum,getForumMassage,sendMassage,classProgress,joinClass} = require("./handler");
 
 const routes = [
     {
@@ -93,6 +93,11 @@ const routes = [
                 maxBytes: 1000 * 1000 * 5
             }
         }
+    },
+    {
+        method: 'POST',
+        path: '/joinClass',
+        handler: joinClass
     },
   ];
 
