@@ -12,6 +12,7 @@
   "dependencies": {
     "@google-cloud/storage": "^6.0.1",
     "@hapi/hapi": "^20.2.2",
+    "dotenv": "^16.0.1",
     "fs": "^0.0.1-security",
     "moment": "^2.29.3",
     "mysql": "^2.18.1",

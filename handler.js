@@ -3,6 +3,7 @@ const moment = require('moment');
 let fs = require('fs');
 const {Storage} = require("@google-cloud/storage");
 
+
 module.exports.register = async function(request,h){
     try {
         const { email, name, password } = request.payload;
@@ -206,6 +207,11 @@ module.exports.moduleContent = async function(request,h){
     try {
         const{classid,modulid,userid} = request.payload;
         // const next_module = parseInt(modulid)+1;
+        const [checkProgress] = await con.query('SELECT COUNT(users_id) as "check" FROM `progress` WHERE users_id = '+userid+' and classes_id = '+classid+'');
+        if(checkProgress[0].check === 0){
+            const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            const [insert,metadata] = await con.query('INSERT INTO `progress`(`users_id`, `classes_id`, `lastest_module`, `recent_modul`, `status`, `update_at`) VALUES ('+userid+','+classid+',1,1,0,"'+date+'")');
+        }
         let next_module = 0;
         const [result] = await con.query('SELECT moduls.*, classes.total_module FROM moduls INNER JOIN classes on moduls.classes_id = classes.id_class  WHERE classes_id='+classid+' and id_moduls='+modulid+'');
         const [maxId] = await con.query('SELECT id_moduls FROM moduls where classes_id = '+classid+' and quiz_id is not null');
@@ -612,34 +618,8 @@ module.exports.classProgress = async function(request,h){
     }
 }
 
-module.exports.joinClass = async function(request,h){
-    try {
-        const {userid,classid} = request.payload;
-        const date = new Date().toISOString().slice(0, 19).replace('T', ' ');
-        const [insert,metadata] = await con.query('INSERT INTO `progress`(`users_id`, `classes_id`, `lastest_module`, `recent_modul`, `status`, `update_at`) VALUES ('+userid+','+classid+',1,1,0,"'+date+'")');
-        if(metadata === 1){
-            const response = h.response({
-                status: 'success',
-                message: 'selamat kamu berhasil menikuti kelas'
-            });
-            response.code(201);
-            return response
-        }
-        else{
-            const response = h.response({
-                status: 'error',
-                message: 'maaf terdapat masalah saat menambah kelas',
-              });
-            response.code(500);
-            return response
-        }
-    } catch (error) {
-        console.log (error);
-        const response = h.response({
-            status: 'error',
-            message: 'maaf terdapat masalah dengan koneksi',
-          });
-        response.code(500);
-        return response
-    }
-}
+// module.exports.auth = function(request,h){
+//     const {key} = request.headers;
+//     if(key == process.env.KEY)
+//     return h.continue;
+// }
