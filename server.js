@@ -26,19 +26,19 @@ const init = async () => {
     // const rotes = require('./route')(server,connection)
     server.route(routes);
 
-    server.ext('onRequest',async (request, h)=>{
-        const {key} = request.headers;
-        if(key == process.env.KEY)
-        return h.continue;
-        else{
-            const response = h.response({
-                status: 'error',
-                message: 'maaf kamu tidak memiliki akses',
-              });
-            response.code(401);
-            return response
-        }
-      })
+    // server.ext('onRequest',async (request, h)=>{
+    //     const {key} = request.headers;
+    //     if(key == process.env.KEY)
+    //     return h.continue;
+    //     else{
+    //         const response = h.response({
+    //             status: 'error',
+    //             message: 'maaf kamu tidak memiliki akses',
+    //           });
+    //         response.code(401);
+    //         return response
+    //     }
+    //   })
     await server.start();
 
 

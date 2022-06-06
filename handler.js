@@ -2,6 +2,7 @@ const con = require('./connection');
 const moment = require('moment');
 let fs = require('fs');
 const {Storage} = require("@google-cloud/storage");
+const jwt = require('jsonwebtoken');
 
 
 module.exports.register = async function(request,h){
@@ -56,12 +57,15 @@ module.exports.login = async function(request,h){
         if(result.length >0){
                 let id_user = (result[0].id_user);
                 let name = (result[0].name);
+                const accessToken = jwt.sign(id_user,process.env.KEY);
+                // console.log(accessToken);
                 const response = h.response({
                     status: 'success',
                     message: 'berhasil melakukan login',
                     data: {
                         userid: id_user,
-                        name: name
+                        name: name,
+                        token: accessToken
                     }
                   });
                 response.code(201);
@@ -352,9 +356,10 @@ module.exports.forum = async function (request, h) {
 module.exports.informasi_gizi = async function (request, h) {
     try {
         const {id} = request.params;
-        const [hasil] = await con.query('SELECT name, content, benefit FROM informations WHERE EXISTS(SELECT id_class FROM classes WHERE classes.id_class = informations.classes_id AND informations.classes_id = '+id+')');
+        const [hasil] = await con.query('SELECT name,description, content, benefit FROM informations WHERE EXISTS(SELECT id_class FROM classes WHERE classes.id_class = informations.classes_id AND informations.classes_id = '+id+')');
         if( hasil.length > 0) {
             let name = hasil[0].name;
+            let description = hasil[0].description;
             let content = hasil[0].content;
             let benefit = hasil[0].benefit;
             const response= h.response({
@@ -362,7 +367,8 @@ module.exports.informasi_gizi = async function (request, h) {
                 data: {
                     judul: name,
                     kandungan: content,
-                    manfaat: benefit
+                    manfaat: benefit,
+                    description: description
                 }
             });
             response.code (201);
@@ -618,8 +624,23 @@ module.exports.classProgress = async function(request,h){
     }
 }
 
-// module.exports.auth = function(request,h){
-//     const {key} = request.headers;
-//     if(key == process.env.KEY)
-//     return h.continue;
-// }
+module.exports.auth = async function(request,reply){
+    const {key} = request.headers;
+    // if(key == process.env.KEY)
+    // return reply.continue;
+    // else{
+    //     return reply.response(401)
+    // }
+    console.log(key);
+    let valid = false;
+    if(key == null) return reply.response(401)
+    jwt.verify(key,process.env.KEY, (err,isValid)=>{
+        console.log(err);
+        if(isValid){
+            // return reply.continue;
+            valid = true;
+        }
+    });
+    if(valid) return reply.continue;
+    else return reply.response(403);
+}
