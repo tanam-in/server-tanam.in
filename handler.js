@@ -151,7 +151,7 @@ module.exports.classes = async function(request,h){
                                             LEFT JOIN progress ON classes.id_class = progress.classes_id
                                             RIGHT JOIN moduls ON progress.lastest_module = moduls.id_moduls AND progress.classes_id = moduls.classes_id
                                             WHERE progress.users_id = `+userid+`)
-                                            GROUP BY classes.id_class`)
+                                            AND moduls.id_moduls = 1`)
         const response = h.response({
             status: 'success',
             data: {
