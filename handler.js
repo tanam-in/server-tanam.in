@@ -174,27 +174,39 @@ module.exports.classes = async function(request,h){
 module.exports.profil = async function(request,h){
     try {
         const{userid} = request.payload;
-        const [user_profil] = await con.query('SELECT users.*, SUM(CASE progress.status WHEN "0" THEN 1 ELSE 0 END) as progress,SUM(CASE progress.status WHEN "1" THEN 1 ELSE 0 END) as finish FROM users INNER JOIN progress on users.id_user = progress.users_id WHERE users.id_user = '+userid+'');
-        const user ={
-            id_user: user_profil[0].id_user,
-            name: user_profil[0].name,
-            password: user_profil[0].password,
-            email: user_profil[0].email,
-            age: user_profil[0].age,
-            address: user_profil[0].address,
-            profile_picture: user_profil[0].profile_picture,
-        }
-        console.log(user)
-        const response = h.response({
-            status: 'success',
-            data: {
-                user: user,
-                progress: user_profil[0].progress,
-                finish: user_profil[0].finish
+        const [user_profil] = await con.query('SELECT users.*, SUM(CASE progress.status WHEN "0" THEN 1 ELSE 0 END) as progress,SUM(CASE progress.status WHEN "1" THEN 1 ELSE 0 END) as finish FROM users left JOIN progress on users.id_user = progress.users_id WHERE users.id_user = '+userid+'');
+        if(user_profil[0].id_user !== null){
+            const user ={
+                id_user: user_profil[0].id_user,
+                name: user_profil[0].name,
+                password: user_profil[0].password,
+                email: user_profil[0].email,
+                age: user_profil[0].age,
+                address: user_profil[0].address,
+                profile_picture: user_profil[0].profile_picture,
             }
-          });
-          response.code(201);
-          return response
+            console.log(user)
+            const response = h.response({
+                status: 'success',
+                data: {
+                    user: user,
+                    progress: user_profil[0].progress,
+                    finish: user_profil[0].finish
+                }
+              });
+              response.code(201);
+              return response
+        }
+        else{
+            const response = h.response({
+                status: 'error',
+                data: {
+                    message: 'maaf profil yang kamu cari tidak ada'
+                }
+              });
+              response.code(401);
+              return response
+        }
 
     } catch (error) {
         console.log(error);
