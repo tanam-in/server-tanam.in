@@ -366,9 +366,9 @@ module.exports.forum = async function (request, h) {
 }
 
 module.exports.informasi_gizi = async function (request, h) {
-    try {
+    try {   
         const {id} = request.params;
-        const [hasil] = await con.query('SELECT name,description, content, benefit FROM informations WHERE EXISTS(SELECT id_class FROM classes WHERE classes.id_class = informations.classes_id AND informations.classes_id = '+id+')');
+        const [hasil] = await con.query('SELECT name,description, content, benefit FROM informations WHERE id_informations = '+id+'');
         if( hasil.length > 0) {
             let name = hasil[0].name;
             let description = hasil[0].description;
@@ -638,16 +638,10 @@ module.exports.classProgress = async function(request,h){
 
 module.exports.auth = async function(request,reply){
     const {key} = request.headers;
-    // if(key == process.env.KEY)
-    // return reply.continue;
-    // else{
-    //     return reply.response(401)
-    // }
-    console.log(key);
     let valid = false;
     if(key == null) return reply.response(401)
     jwt.verify(key,process.env.KEY, (err,isValid)=>{
-        console.log(err);
+        
         if(isValid){
             // return reply.continue;
             valid = true;
