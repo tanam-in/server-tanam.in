@@ -241,6 +241,23 @@ module.exports.moduleContent = async function(request,h){
                 const [update] = await con.query('UPDATE `progress` SET recent_modul='+modulid+',lastest_module='+modulid+' ,update_at="'+updateAt+'" where users_id='+userid+' and classes_id='+classid+'')
             }
 
+            let temp = maxId[0].id_moduls - 1
+            if(modulid == temp){
+                const [foto] = await con.query('SELECT progres_pic FROM progress WHERE classes_id = '+classid+' and users_id = '+userid+'')
+                const response = h.response({
+                    status: 'success',
+                    data: {
+                        module: result,
+                        nextModule: next_module,
+                        class_id: classid,
+                        maxid: maxId[0].id_moduls,
+                        picture: foto[0].progres_pic
+                    }
+                  });
+                  response.code(201);
+                  return response
+            }
+
             if(result[0].quiz_id === null){
                 const response = h.response({
                     status: 'success',
