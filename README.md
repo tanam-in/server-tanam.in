@@ -6,7 +6,8 @@ Project is created with:
 * Node version: V16.14.0
 * NPM version: V8.3.1
 * Google Cloud SQL
-* Goole App Engine
+* Google App Engine
+* Google Cloud Function
 
 ## Setup
 To run this project, install it locally using npm:
@@ -78,3 +79,12 @@ gcloud app deploy
 
 ## Postman Documentation
 - LINK : https://documenter.getpostman.com/view/21095376/Uz5KnahV
+
+## Deploy ML on GCP
+ 1. Create new Cloud Storage Bucket
+ 2. Download model.h5 and uploaded it into storage bucket
+ 3. Create new function in Cloud Function to implement end-to-end serverless machine learning deployment using HTTP trigger type 
+ 4. Set memory allocated and runtime service account to App Engine, then copy main.py & requirement.txt from ML APIs to cloud function code and setting the entry point
+ 5. Make sure that configure of model directory to load model succesfully
+ 6. Deploy it 
+ 7. Use Postman to test GCF using trigger url
