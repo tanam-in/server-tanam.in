@@ -80,7 +80,7 @@ gcloud app deploy
 ## Postman Documentation
 - LINK : https://documenter.getpostman.com/view/21095376/Uz5KnahV
 
-## Deploy ML on GCP
+Deploy ML on GCP
  1. Create new Cloud Storage Bucket
  2. Download model.h5 and uploaded it into storage bucket
  3. Create new function in Cloud Function to implement end-to-end serverless machine learning deployment using HTTP trigger type 
