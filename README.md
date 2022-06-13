@@ -9,6 +9,9 @@ Project is created with:
 * Google App Engine
 * Google Cloud Function
 
+Achitecture illustration of our prototype is:
+<img src="(https://user-images.githubusercontent.com/99232132/173273768-e2448116-0e41-4a4d-a114-5cf1f4c3518b.jpeg" width="250">
+
 ## Setup
 To run this project, install it locally using npm:
 
@@ -79,8 +82,8 @@ gcloud app deploy
 
 ## Postman Documentation
 - LINK : https://documenter.getpostman.com/view/21095376/Uz5KnahV
-...
 ```
+
 ### Deploy ML to GCP
  1. Create new Cloud Storage Bucket
  2. Download model.h5 and uploaded it into storage bucket
