@@ -10,7 +10,8 @@ Project is created with:
 * Google Cloud Function
 
 Achitecture illustration of our prototype is:
-<img src="(https://user-images.githubusercontent.com/99232132/173273768-e2448116-0e41-4a4d-a114-5cf1f4c3518b.jpeg" width="250">
+![Architecture](https://user-images.githubusercontent.com/99232132/173273951-48a7d898-4c5c-465f-bf83-0808c7f8cfc3.jpeg)
+
 
 ## Setup
 To run this project, install it locally using npm:
